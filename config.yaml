@@ -1,0 +1,4 @@
+type: static
+width: 720
+DaylightImageFilename: images/day.png
+NighttimeImageFilename: images/night.png
