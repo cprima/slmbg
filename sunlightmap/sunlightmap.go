@@ -13,8 +13,10 @@ package sunlightmap
 import (
 	"bytes"
 	"encoding/base64"
+	"fmt"
 	"image"
 	"image/color"
+	"image/draw"
 	"image/png"
 	"io"
 	"math"
@@ -276,13 +278,28 @@ func WriteStaticPng(slm *sunlightmap, pathfileext string) (err error) {
 	//for _, value := range slm.zeitpunkte {
 
 	sslm := newSingle(slm, slm.zeitpunkte[0])
+	//img, err := mergeImages2(slm, &sslm)
 	img, err := mergeImages2(slm, &sslm)
 	if err != nil {
 		panic(err) //fixme
 	}
+	m := image.NewRGBA(image.Rect(0, 0, slm.Width, slm.Height))
+	//b := m.Bounds()
+	left := image.Rect(0, 0, slm.Width/3, slm.Height)
+	center := image.Rect(slm.Width/3, 0, slm.Width/3*2, slm.Height)
+	right := image.Rect(slm.Width/3*2, 0, slm.Width, slm.Height)
+	fmt.Println(left, center, right)
+	//p := image.Pt(slm.Width/3, 0)
+	//draw.Draw(m, b, img, b.Min.Add(p), draw.Src)
+	draw.Draw(m, left, img, center.Min, draw.Src)
+	draw.Draw(m, center, img, right.Min, draw.Src)
+	draw.Draw(m, right, img, left.Min, draw.Src)
+	//dirtyRect := b.Intersect(image.Rect(b.Min.X, b.Max.Y-20, b.Max.X, b.Max.Y))
+
 	f, err := os.OpenFile(pathfileext, os.O_WRONLY|os.O_CREATE, 0600)
 	defer f.Close()
-	png.Encode(f, img)
+	//png.Encode(f, img)
+	png.Encode(f, m)
 
 	return
 

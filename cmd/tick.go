@@ -18,6 +18,7 @@ import (
 	"time"
 
 	"github.com/cprior/slmbg/sunlightmap"
+	"github.com/reujab/wallpaper"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -34,10 +35,21 @@ For the math behind this and the Android app visit http://slm.prdv.de/ .`,
 	Run: func(cmd *cobra.Command, args []string) {
 		//fmt.Println("tick called")
 
+		//background, err := wallpaper.Get()
+		//if err != nil {
+		//	panic(err)
+		//}
+		//fmt.Println("Current wallpaper: ", background)
+
 		slm := sunlightmap.NewStatic(viper.GetInt("width"), time.Now().Local())
 		slm.DaylightImageFilename = viper.GetString("DaylightImageFilename")
 		slm.NighttimeImageFilename = viper.GetString("NighttimeImageFilename")
 		_ = sunlightmap.WriteStaticPng(&slm, viper.GetString("OutputImageFilename"))
+		wallpaper.SetFromFile(viper.GetString("OutputImageFilename"))
+		viper.Set("last_run", time.Now().Local().Format("2006-01-02 15:04:05"))
+		viper.Set("foo.bar", "baz")
+		viper.Set("ene", []string{"mene", "mu"})
+		_ = viper.WriteConfig()
 	},
 }
 

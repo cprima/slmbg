@@ -5,6 +5,7 @@ import (
 
 	"github.com/cprior/slmbg/slmbglib"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 var versionCmd = &cobra.Command{
@@ -15,6 +16,10 @@ var versionCmd = &cobra.Command{
 		fmt.Println("slmbglib Buildtime: ", slmbglib.Buildtime)
 		fmt.Println("slmbglib Version: ", slmbglib.Version)
 		fmt.Println("slmbglib Git hash: ", slmbglib.Githash)
+		fmt.Println("config width: ", viper.GetInt("width"))
+		fmt.Println("config DaylightImageFilename: ", viper.GetString("DaylightImageFilename"))
+		fmt.Println("config NighttimeImageFilename: ", viper.GetString("NighttimeImageFilename"))
+		fmt.Println("config OutputImageFilename: ", viper.GetString("OutputImageFilename"))
 	},
 }
 

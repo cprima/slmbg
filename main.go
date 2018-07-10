@@ -16,13 +16,23 @@ package main
 
 import (
 	"github.com/cprior/slmbg/cmd"
+	"github.com/kardianos/osext"
+)
+
+var (
+	folderPath string
+	width      int
+	height     int
 )
 
 func init() {
+	folderPath, _ = osext.ExecutableFolder()
 }
 
 func main() {
 
 	cmd.Execute()
+	//width, height, _ = screensize.Get()
+	//fmt.Println(width, height)
 
 }

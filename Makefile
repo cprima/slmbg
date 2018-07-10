@@ -1,12 +1,12 @@
 BUILD_DATETIME := `date -Iseconds`
 GIT_HASH := `git rev-parse HEAD`
-VERSION := "0.1.1"
+VERSION := "0.1.2"
 
 run:
-	go build -ldflags "-X main.buildtime=$(BUILD_DATETIME) \
+	go run -ldflags "-X main.buildtime=$(BUILD_DATETIME) \
 	-X github.com/cprior/slmbg/slmbglib.Buildtime=$(BUILD_DATETIME) \
 	-X github.com/cprior/slmbg/slmbglib.Version=$(VERSION) \
-	"main.go
+	" main.go
 
 build:
 	go build -ldflags "-X main.buildtime=$(BUILD_DATETIME) \
@@ -15,9 +15,15 @@ build:
 	-X github.com/cprior/slmbg/slmbglib.Githash=$(GIT_HASH) \
 	" -o slmbg main.go
 
-winbuild:
+windows386build:
 	GOOS=windows GOARCH=386 go build -ldflags "-X main.buildtime=$(BUILD_DATETIME) \
 	-X github.com/cprior/slmbg/slmbglib.Buildtime=$(BUILD_DATETIME) \
 	-X github.com/cprior/slmbg/slmbglib.Version=$(VERSION) \
-	" -o slmbg.exe main.go
+	" -o slmbg_windows_386.exe main.go
+
+windowsamd64build:
+	GOOS=windows GOARCH=amd64 go build -ldflags "-X main.buildtime=$(BUILD_DATETIME) \
+	-X github.com/cprior/slmbg/slmbglib.Buildtime=$(BUILD_DATETIME) \
+	-X github.com/cprior/slmbg/slmbglib.Version=$(VERSION) \
+	" -o slmbg_windows_amd64.exe main.go
 

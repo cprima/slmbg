@@ -18,7 +18,6 @@ import (
 	"fmt"
 	"os"
 
-	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -69,16 +68,16 @@ func initConfig() {
 		// Use config file from the flag.
 		viper.SetConfigFile(cfgFile)
 	} else {
-		// Find home directory.
-		home, err := homedir.Dir()
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
+		// // Find home directory.
+		// home, err := homedir.Dir()
+		// if err != nil {
+		// 	fmt.Println(err)
+		// 	os.Exit(1)
+		// }
 
 		// Search config in home directory with name ".slmbg" (without extension).
-		viper.AddConfigPath("/etc/slmbg")
-		viper.AddConfigPath(home + "/.slmbg")
+		// viper.AddConfigPath("/etc/slmbg")
+		// viper.AddConfigPath(home + "/.slmbg")
 		viper.AddConfigPath(".")
 		viper.SetConfigName("config")
 	}

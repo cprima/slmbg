@@ -1,4 +1,11 @@
+daylightimagefilename: images/day.png
+ene:
+- mene
+- mu
+foo:
+  bar: baz
+last_run: "2018-07-08 22:31:27"
+nighttimeimagefilename: images/night.png
+outputimagefilename: /tmp/slmbg2.png
 type: static
-width: 720
-DaylightImageFilename: images/day.png
-NighttimeImageFilename: images/night.png
+width: 2400
