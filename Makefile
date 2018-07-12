@@ -19,11 +19,11 @@ windows386build:
 	GOOS=windows GOARCH=386 go build -ldflags "-X main.buildtime=$(BUILD_DATETIME) \
 	-X github.com/cprior/slmbg/slmbglib.Buildtime=$(BUILD_DATETIME) \
 	-X github.com/cprior/slmbg/slmbglib.Version=$(VERSION) \
-	" -o slmbg_windows_386.exe main.go
+	-H windowsgui " -o slmbg_windows_386.exe main.go
 
 windowsamd64build:
 	GOOS=windows GOARCH=amd64 go build -ldflags "-X main.buildtime=$(BUILD_DATETIME) \
 	-X github.com/cprior/slmbg/slmbglib.Buildtime=$(BUILD_DATETIME) \
 	-X github.com/cprior/slmbg/slmbglib.Version=$(VERSION) \
-	" -o slmbg_windows_amd64.exe main.go
+	-H windowsgui " -o slmbg_windows_amd64.exe main.go
 

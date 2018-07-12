@@ -17,7 +17,12 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"time"
 
+	"github.com/cprior/slmbg/images/icon"
+	"github.com/cprior/slmbg/sunlightmap"
+	"github.com/getlantern/systray"
+	"github.com/reujab/wallpaper"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -38,6 +43,9 @@ and may be used as the basis for wallpapers.`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	//	Run: func(cmd *cobra.Command, args []string) { },
+	Run: func(cmd *cobra.Command, args []string) {
+		systray.Run(onReady, onExit)
+	},
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -46,6 +54,38 @@ func Execute() {
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
+	}
+}
+
+func onReady() {
+	systray.SetIcon(icon.Data)
+	systray.SetTitle("Sunlightmap")
+	systray.SetTooltip("slmbg")
+	go updateBackground()
+	mQuitOrig := systray.AddMenuItem("Quit", "Quit the whole app")
+	go func() {
+		<-mQuitOrig.ClickedCh
+		fmt.Println("Requesting quit")
+		systray.Quit()
+		fmt.Println("Finished quitting")
+	}()
+}
+func onExit() {}
+
+func updateBackground() {
+	for {
+		slm := sunlightmap.NewStatic(viper.GetInt("width"), time.Now().Local())
+		slm.DaylightImageFilename = viper.GetString("DaylightImageFilename")
+		slm.NighttimeImageFilename = viper.GetString("NighttimeImageFilename")
+		_ = sunlightmap.WriteStaticPng(&slm, viper.GetString("OutputImageFilename"))
+		wallpaper.SetFromFile(viper.GetString("OutputImageFilename"))
+		viper.Set("last_run", time.Now().Local().Format("2006-01-02 15:04:05"))
+		viper.Set("center", "asia")
+		//viper.Set("foo.bar", "baz")
+		//viper.Set("ene", []string{"mene", "mu"})
+		_ = viper.WriteConfig()
+		time.Sleep(1000 * 30 * time.Millisecond)
+		//fmt.Println(".")
 	}
 }
 

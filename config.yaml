@@ -1,10 +1,6 @@
+center: asia
 daylightimagefilename: images/day.png
-ene:
-- mene
-- mu
-foo:
-  bar: baz
-last_run: "2018-07-08 22:31:27"
+last_run: "2018-07-13 17:13:07"
 nighttimeimagefilename: images/night.png
 outputimagefilename: /tmp/slmbg2.png
 type: static
