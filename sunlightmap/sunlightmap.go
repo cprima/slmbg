@@ -13,6 +13,7 @@ package sunlightmap
 import (
 	"bytes"
 	"encoding/base64"
+	"fmt"
 	"image"
 	"image/color"
 	"image/draw"
@@ -42,6 +43,8 @@ type sunlightmap struct {
 	zeitpunkte             []time.Time
 	visualization          string //static or animated (todo: animated)
 	debugstring            string
+	center                 string
+	CenterLongitude        int
 }
 
 // New returns the sunlightmap struct with default values.
@@ -265,6 +268,34 @@ func ReturnStaticPngBase64(slm *sunlightmap) (retval string, err error) {
 
 }
 
+//Pixel holds color information in RGBA format
+type Pixel struct {
+	R uint8
+	G uint8
+	B uint8
+	A uint8
+}
+
+//PngGetColorAt finds the RGBA values in a png at a specified position
+func PngGetColorAt(filename string, x int, y int) color.RGBA {
+
+	file, err := os.Open(filename)
+
+	if err != nil {
+		fmt.Println("Error: File could not be opened.")
+		os.Exit(1)
+	}
+	defer file.Close()
+
+	img, _, err := image.Decode(file)
+
+	r, g, b, a := img.At(x, y).RGBA()
+	topleftColor := Pixel{uint8(r / 257), uint8(g / 257), uint8(b / 257), uint8(a / 257)}
+
+	return color.RGBA{topleftColor.R, topleftColor.G, topleftColor.B, topleftColor.A}
+
+}
+
 // WriteStaticPng is called with a sunlightmap struct and
 // writes a single sunlightmap in png format.
 func WriteStaticPng(slm *sunlightmap, pathfileext string) (err error) {
@@ -272,33 +303,65 @@ func WriteStaticPng(slm *sunlightmap, pathfileext string) (err error) {
 	if pathfileext == "" {
 		pathfileext = "./slmbg.png"
 	}
-	//buff := bytes.Buffer{}
-	slm.visualization = "static"
-	//for _, value := range slm.zeitpunkte {
 
+	slm.visualization = "static"
+	daycolor := PngGetColorAt(slm.DaylightImageFilename, slm.Width/2, slm.Height-10)
+	nightcolor := PngGetColorAt(slm.NighttimeImageFilename, 10, slm.Height/2)
+	fmt.Println(daycolor, nightcolor)
 	sslm := newSingle(slm, slm.zeitpunkte[0])
 	//img, err := mergeImages2(slm, &sslm)
 	img, err := mergeImages2(slm, &sslm)
 	if err != nil {
 		panic(err) //fixme
 	}
-	m := image.NewRGBA(image.Rect(0, 0, slm.Width, slm.Height))
-	//b := m.Bounds()
-	left := image.Rect(0, 0, slm.Width/3, slm.Height)
-	center := image.Rect(slm.Width/3, 0, slm.Width/3*2, slm.Height)
-	right := image.Rect(slm.Width/3*2, 0, slm.Width, slm.Height)
-	//fmt.Println(left, center, right)
-	//p := image.Pt(slm.Width/3, 0)
-	//draw.Draw(m, b, img, b.Min.Add(p), draw.Src)
-	draw.Draw(m, left, img, center.Min, draw.Src)
-	draw.Draw(m, center, img, right.Min, draw.Src)
-	draw.Draw(m, right, img, left.Min, draw.Src)
-	//dirtyRect := b.Intersect(image.Rect(b.Min.X, b.Max.Y-20, b.Max.X, b.Max.Y))
+
+	overheight := 0
+	dst := image.NewRGBA(image.Rect(0, 0, slm.Width, slm.Height+overheight))
+	green := color.RGBA{0, 100, 0, 255}
+	draw.Draw(dst, dst.Bounds(), &image.Uniform{green}, image.ZP, draw.Src)
+	draw.Draw(dst, image.Rect(0, 0, slm.Width, overheight/2+2), &image.Uniform{daycolor}, image.ZP, draw.Src)
+	draw.Draw(dst, image.Rect(0, slm.Height-2, slm.Width, slm.Height+overheight), &image.Uniform{nightcolor}, image.ZP, draw.Src)
+	//draw.Draw(dst, dst.Bounds(), &image.Uniform{color.RGBA{30, 30, 30, 30}}, image.ZP, draw.Src)
+	fmt.Println(slm.CenterLongitude)
+
+	//with the assumption that draw.Draw is optimized
+	//so no scrolling/wrapping/... implemented but left-or-right
+	centerAt := 999
+	if centerAt == 999 {
+		centerAt = 44
+	} else if centerAt > 180 {
+		centerAt = 0
+	}
+	if centerAt < -180 {
+		centerAt = 0
+	}
+	x := (slm.Width / 2) + (centerAt * slm.Width / 2 / 180) //return int
+	offset := 0
+	if x > slm.Width/2 {
+		fmt.Println("easting")
+		offset = x - slm.Width/2
+		slidedFill := image.Rect(slm.Width-offset, overheight/2, slm.Width, slm.Height+overheight)
+		slidedCenter := image.Rect(0, overheight/2, slm.Width-offset, slm.Height+overheight)
+
+		// Draw aligns slided*.Min in dst with Pt in src and then replaces the
+		// rectangle slided* in dst with the result of drawing src on dst.
+		draw.Draw(dst, slidedFill, img, image.Pt(0, 0), draw.Src)
+		draw.Draw(dst, slidedCenter, img, image.Pt(offset, 0), draw.Src)
+	} else if x < slm.Width/2 {
+		fmt.Println("westing")
+		offset = slm.Width/2 - x
+		slidedFill := image.Rect(0, overheight/2, offset, slm.Height+overheight)
+		slidedCenter := image.Rect(offset, overheight/2, slm.Width, slm.Height+overheight)
+		draw.Draw(dst, slidedFill, img, image.Pt(slm.Width-offset, 0), draw.Src)
+		draw.Draw(dst, slidedCenter, img, image.Pt(0, 0), draw.Src)
+	} else {
+		draw.Draw(dst, dst.Bounds(), img, image.Pt(0, 0), draw.Src)
+	}
+	fmt.Println("x:", x, "offset:", offset)
 
 	f, err := os.OpenFile(pathfileext, os.O_WRONLY|os.O_CREATE, 0600)
 	defer f.Close()
-	//png.Encode(f, img)
-	png.Encode(f, m)
+	png.Encode(f, dst)
 
 	return
 

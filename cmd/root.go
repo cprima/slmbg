@@ -77,6 +77,13 @@ func updateBackground() {
 		slm := sunlightmap.NewStatic(viper.GetInt("width"), time.Now().Local())
 		slm.DaylightImageFilename = viper.GetString("DaylightImageFilename")
 		slm.NighttimeImageFilename = viper.GetString("NighttimeImageFilename")
+		if viper.GetString("center") == "asia" {
+			slm.CenterLongitude = 60
+		} else if viper.GetString("center") == "foobar" {
+			slm.CenterLongitude = 20
+		} else {
+			slm.CenterLongitude = 0
+		}
 		_ = sunlightmap.WriteStaticPng(&slm, viper.GetString("OutputImageFilename"))
 		wallpaper.SetFromFile(viper.GetString("OutputImageFilename"))
 		viper.Set("last_run", time.Now().Local().Format("2006-01-02 15:04:05"))
@@ -84,7 +91,7 @@ func updateBackground() {
 		//viper.Set("foo.bar", "baz")
 		//viper.Set("ene", []string{"mene", "mu"})
 		_ = viper.WriteConfig()
-		time.Sleep(1000 * 30 * time.Millisecond)
+		time.Sleep(time.Duration(viper.GetInt64("interval") * int64(time.Second)))
 		//fmt.Println(".")
 	}
 }
