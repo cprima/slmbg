@@ -1,6 +1,7 @@
 BUILD_DATETIME := `date -Iseconds`
+BUILD_DATETIME := `2019-09-22T13:35:00Z`
 GIT_HASH := `git rev-parse HEAD`
-VERSION := "0.1.2"
+VERSION := "0.1.3"
 
 run:
 	go run -ldflags "-X main.buildtime=$(BUILD_DATETIME) \

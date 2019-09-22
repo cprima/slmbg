@@ -1,17 +1,3 @@
-// Copyright © 2018 NAME HERE <EMAIL ADDRESS>
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 package cmd
 
 import (
@@ -32,87 +18,81 @@ var cfgFile string
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "slmbg",
-	Short: "shows a day- and night map of the planet",
+	Short: "Shows a day- and night map of the planet",
 	Long: `The standalone companion of the Android app available at
 Shows a day- and night map of the planet
 http://slm.prdv.de/ .
 
 Combines two png picture files of the day and night,
-calculates an approximisatin of twilight,
+calculates an approximisation of twilight,
 and may be used as the basis for wallpapers.`,
-	// Uncomment the following line if your bare application
-	// has an action associated with it:
-	//	Run: func(cmd *cobra.Command, args []string) { },
 	Run: func(cmd *cobra.Command, args []string) {
-		systray.Run(onReady, onExit)
+		// systray.Run(onReady, onExit)
 	},
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
-	if err := rootCmd.Execute(); err != nil {
+	// go systray.Run(onReady, onExit)
+	if err := serviceCmd.Execute(); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 }
 
+//called in the rootCmd by systray.Run(onReady, onExit)
 func onReady() {
 	systray.SetIcon(icon.Data)
 	systray.SetTitle("Sunlightmap")
 	systray.SetTooltip("slmbg")
-	go updateBackground()
+	// go updateBackground()
 	mQuitOrig := systray.AddMenuItem("Quit", "Quit the whole app")
 	go func() {
 		<-mQuitOrig.ClickedCh
-		fmt.Println("Requesting quit")
+		// fmt.Println("Requesting quit")
 		systray.Quit()
-		fmt.Println("Finished quitting")
+		// fmt.Println("Finished quitting")
 	}()
 }
-func onExit() {}
+func onExit() {
+	// serviceHelper("stop")
+	os.Exit(1)
+}
+
+func tick() {
+	slm := sunlightmap.NewStatic(viper.GetInt("width"), time.Now().Local())
+	slm.DaylightImageFilename = viper.GetString("DaylightImageFilename")
+	slm.NighttimeImageFilename = viper.GetString("NighttimeImageFilename")
+	if viper.GetString("center") == "asia" {
+		slm.CenterLongitude = 60
+	} else if viper.GetString("center") == "foobar" {
+		slm.CenterLongitude = 20
+	} else {
+		slm.CenterLongitude = 0
+	}
+	_ = sunlightmap.WriteStaticPng(&slm, viper.GetString("OutputImageFilename"))
+	viper.Set("last_run", time.Now().Local().Format("2006-01-02 15:04:05"))
+	_ = viper.WriteConfig()
+}
 
 func updateBackground() {
-	for {
-		slm := sunlightmap.NewStatic(viper.GetInt("width"), time.Now().Local())
-		slm.DaylightImageFilename = viper.GetString("DaylightImageFilename")
-		slm.NighttimeImageFilename = viper.GetString("NighttimeImageFilename")
-		if viper.GetString("center") == "asia" {
-			slm.CenterLongitude = 60
-		} else if viper.GetString("center") == "foobar" {
-			slm.CenterLongitude = 20
-		} else {
-			slm.CenterLongitude = 0
-		}
-		_ = sunlightmap.WriteStaticPng(&slm, viper.GetString("OutputImageFilename"))
-		wallpaper.SetFromFile(viper.GetString("OutputImageFilename"))
-		viper.Set("last_run", time.Now().Local().Format("2006-01-02 15:04:05"))
-		viper.Set("center", "asia")
-		//viper.Set("foo.bar", "baz")
-		//viper.Set("ene", []string{"mene", "mu"})
-		_ = viper.WriteConfig()
-		time.Sleep(time.Duration(viper.GetInt64("interval") * int64(time.Second)))
-		//fmt.Println(".")
-	}
+	return
+	// for {
+	// 	tick()
+	// 	time.Sleep(time.Duration(viper.GetInt64("interval") * int64(time.Second)))
+	// }
 }
 
 func init() {
 	cobra.OnInitialize(initConfig)
-
-	// Here you will define your flags and configuration settings.
-	// Cobra supports persistent flags, which, if defined here,
-	// will be global for your application.
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is ./config.yaml)")
-
-	// Cobra also supports local flags, which will only run
-	// when this action is called directly.
-	//rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	wallpaper.SetFromFile(viper.GetString("OutputImageFilename"))
+	serviceCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is ./config.yaml)")
 }
 
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
 	if cfgFile != "" {
-		// Use config file from the flag.
 		viper.SetConfigFile(cfgFile)
 	} else {
 		// // Find home directory.
@@ -126,6 +106,7 @@ func initConfig() {
 		// viper.AddConfigPath("/etc/slmbg")
 		// viper.AddConfigPath(home + "/.slmbg")
 		viper.AddConfigPath(".")
+		viper.AddConfigPath("C:\\Users\\CPM\\go\\src\\github.com\\cprior\\slmbg")
 		viper.SetConfigName("config")
 	}
 

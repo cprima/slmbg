@@ -307,7 +307,7 @@ func WriteStaticPng(slm *sunlightmap, pathfileext string) (err error) {
 	slm.visualization = "static"
 	daycolor := PngGetColorAt(slm.DaylightImageFilename, slm.Width/2, slm.Height-10)
 	nightcolor := PngGetColorAt(slm.NighttimeImageFilename, 10, slm.Height/2)
-	fmt.Println(daycolor, nightcolor)
+	// fmt.Println(daycolor, nightcolor)
 	sslm := newSingle(slm, slm.zeitpunkte[0])
 	//img, err := mergeImages2(slm, &sslm)
 	img, err := mergeImages2(slm, &sslm)
@@ -322,7 +322,7 @@ func WriteStaticPng(slm *sunlightmap, pathfileext string) (err error) {
 	draw.Draw(dst, image.Rect(0, 0, slm.Width, overheight/2+2), &image.Uniform{daycolor}, image.ZP, draw.Src)
 	draw.Draw(dst, image.Rect(0, slm.Height-2, slm.Width, slm.Height+overheight), &image.Uniform{nightcolor}, image.ZP, draw.Src)
 	//draw.Draw(dst, dst.Bounds(), &image.Uniform{color.RGBA{30, 30, 30, 30}}, image.ZP, draw.Src)
-	fmt.Println(slm.CenterLongitude)
+	// fmt.Println(slm.CenterLongitude)
 
 	//with the assumption that draw.Draw is optimized
 	//so no scrolling/wrapping/... implemented but left-or-right
@@ -338,7 +338,7 @@ func WriteStaticPng(slm *sunlightmap, pathfileext string) (err error) {
 	x := (slm.Width / 2) + (centerAt * slm.Width / 2 / 180) //return int
 	offset := 0
 	if x > slm.Width/2 {
-		fmt.Println("easting")
+		// fmt.Println("easting")
 		offset = x - slm.Width/2
 		slidedFill := image.Rect(slm.Width-offset, overheight/2, slm.Width, slm.Height+overheight)
 		slidedCenter := image.Rect(0, overheight/2, slm.Width-offset, slm.Height+overheight)
@@ -348,7 +348,7 @@ func WriteStaticPng(slm *sunlightmap, pathfileext string) (err error) {
 		draw.Draw(dst, slidedFill, img, image.Pt(0, 0), draw.Src)
 		draw.Draw(dst, slidedCenter, img, image.Pt(offset, 0), draw.Src)
 	} else if x < slm.Width/2 {
-		fmt.Println("westing")
+		// fmt.Println("westing")
 		offset = slm.Width/2 - x
 		slidedFill := image.Rect(0, overheight/2, offset, slm.Height+overheight)
 		slidedCenter := image.Rect(offset, overheight/2, slm.Width, slm.Height+overheight)
@@ -357,7 +357,7 @@ func WriteStaticPng(slm *sunlightmap, pathfileext string) (err error) {
 	} else {
 		draw.Draw(dst, dst.Bounds(), img, image.Pt(0, 0), draw.Src)
 	}
-	fmt.Println("x:", x, "offset:", offset)
+	// fmt.Println("x:", x, "offset:", offset)
 
 	f, err := os.OpenFile(pathfileext, os.O_WRONLY|os.O_CREATE, 0600)
 	defer f.Close()

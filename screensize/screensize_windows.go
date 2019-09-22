@@ -3,8 +3,6 @@
 package screensize
 
 import (
-	"fmt"
-
 	"github.com/lxn/win"
 )
 
@@ -14,6 +12,6 @@ func Get() (int, int, error) {
 	defer win.ReleaseDC(0, hDC)
 	width := int(win.GetDeviceCaps(hDC, win.HORZRES))
 	height := int(win.GetDeviceCaps(hDC, win.VERTRES))
-	fmt.Printf("%dx%d\n", width, height)
+	// fmt.Printf("%dx%d\n", width, height)
 	return width, height, nil
 }

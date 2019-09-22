@@ -1,8 +1,8 @@
 center: asia
-daylightimagefilename: images/day.png
-interval: 4
-last_run: "2018-07-15 21:13:25"
-nighttimeimagefilename: images/night.png
-outputimagefilename: /tmp/slmbg2.png
+daylightimagefilename: P:\tmp\day.png
+interval: 8
+last_run: "2019-09-22 19:09:07"
+nighttimeimagefilename: P:\tmp\night.png
+outputimagefilename: P:\tmp\slmbg2.png
 type: static
-width: 1800
+width: 1920
