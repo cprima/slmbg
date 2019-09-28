@@ -19,6 +19,8 @@ import (
 	"os"
 	"time"
 
+	"github.com/prometheus/client_golang/prometheus"
+
 	"github.com/cprior/slmbg/images/icon"
 	"github.com/cprior/slmbg/sunlightmap"
 	"github.com/getlantern/systray"
@@ -85,6 +87,7 @@ func updateBackground() {
 			slm.CenterLongitude = 0
 		}
 		_ = sunlightmap.WriteStaticPng(&slm, viper.GetString("OutputImageFilename"))
+		lastGenerated.SetToCurrentTime()
 		wallpaper.SetFromFile(viper.GetString("OutputImageFilename"))
 		viper.Set("last_run", time.Now().Local().Format("2006-01-02 15:04:05"))
 		viper.Set("center", "asia")
@@ -96,6 +99,15 @@ func updateBackground() {
 	}
 }
 
+var (
+	lastGenerated = prometheus.NewGauge(prometheus.GaugeOpts{
+		Namespace: "prdv.de",
+		Subsystem: "slmbg",
+		Name:      "lastRun",
+		Help:      "Time then the output picture was last generated.",
+	})
+)
+
 func init() {
 	cobra.OnInitialize(initConfig)
 
@@ -104,9 +116,7 @@ func init() {
 	// will be global for your application.
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is ./config.yaml)")
 
-	// Cobra also supports local flags, which will only run
-	// when this action is called directly.
-	//rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	prometheus.MustRegister(lastGenerated)
 }
 
 // initConfig reads in config file and ENV variables if set.
