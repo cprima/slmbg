@@ -23,6 +23,8 @@ import (
 	"github.com/spf13/viper"
 )
 
+var Noset bool
+
 // tickCmd represents the tick command
 var tickCmd = &cobra.Command{
 	Use:   "tick",
@@ -35,20 +37,14 @@ For the math behind this and the Android app visit http://slm.prdv.de/ .`,
 	Run: func(cmd *cobra.Command, args []string) {
 		//fmt.Println("tick called")
 
-		//background, err := wallpaper.Get()
-		//if err != nil {
-		//	panic(err)
-		//}
-		//fmt.Println("Current wallpaper: ", background)
-
 		slm := sunlightmap.NewStatic(viper.GetInt("width"), time.Now().Local())
 		slm.DaylightImageFilename = viper.GetString("DaylightImageFilename")
 		slm.NighttimeImageFilename = viper.GetString("NighttimeImageFilename")
 		_ = sunlightmap.WriteStaticPng(&slm, viper.GetString("OutputImageFilename"))
-		wallpaper.SetFromFile(viper.GetString("OutputImageFilename"))
+		if Noset == false {
+			wallpaper.SetFromFile(viper.GetString("OutputImageFilename"))
+		}
 		viper.Set("last_run", time.Now().Local().Format("2006-01-02 15:04:05"))
-		//viper.Set("foo.bar", "baz")
-		//viper.Set("ene", []string{"mene", "mu"})
 		_ = viper.WriteConfig()
 	},
 }
@@ -56,13 +52,5 @@ For the math behind this and the Android app visit http://slm.prdv.de/ .`,
 func init() {
 	rootCmd.AddCommand(tickCmd)
 
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// tickCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// tickCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	tickCmd.Flags().BoolVarP(&Noset, "noset", "n", false, "Do not set a background picture.")
 }
