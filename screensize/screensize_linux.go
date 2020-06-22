@@ -44,12 +44,16 @@ func Get(priority string) (int, int) {
 	for ls.Scan() {
 		line := ls.Text()
 		if strings.Contains(line, " connected ") {
+			//fmt.Println("Print: %s", line)
 			s := strings.Split(line, " ")
-			s2 := strings.Split(s[3], "+")
-			s3 := strings.Split(s2[0], "x")
-			//fmt.Println(s3[0], s3[1])
-			width, _ = strconv.Atoi(s3[0])
-			height, _ = strconv.Atoi(s3[1])
+			//fmt.Println("Print: " + strings.Join(s, " "))
+			if strings.Contains(line, "+") {
+				s2 := strings.Split(s[2], "+")
+				s3 := strings.Split(s2[0], "x")
+				//fmt.Println(s3[0], s3[1])
+				width, _ = strconv.Atoi(s3[0])
+				height, _ = strconv.Atoi(s3[1])
+			}
 		}
 	}
 
