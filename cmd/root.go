@@ -34,8 +34,8 @@ var rootCmd = &cobra.Command{
 	Use:   "slmbg",
 	Short: "shows a day- and night map of the planet",
 	Long: `The standalone companion of the Android app available at
-Shows a day- and night map of the planet
-http://slm.prdv.de/ .
+http://slm.prdv.de
+shows a day- and night map of the planet.
 
 Combines two png picture files of the day and night,
 calculates an approximisatin of twilight,
