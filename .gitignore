@@ -3,5 +3,8 @@ images/day.pgw
 images/night.pgw
 images/slmbg.png
 slmbg
+slmbg_windows_386.exe
 slmbg_windows_amd64.exe
+linux.zip
+windows*.zip
 
