@@ -32,7 +32,7 @@ func XrandrReader() *bytes.Reader {
 }
 
 //Get does
-func Get(priority string) (int, int) {
+func Get(priority string) (int, int, error) {
 
 	//
 	// xrandr | grep ' connected' | cut -d' ' -f4 | grep -Po '[0-9]{4,5}.[0-9]{3}'
@@ -58,5 +58,5 @@ func Get(priority string) (int, int) {
 	}
 
 	//fmt.Println("screensize.get linux")
-	return width, height
+	return width, height, nil
 }

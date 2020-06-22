@@ -9,7 +9,7 @@ import (
 )
 
 //Get does
-func Get() (int, int, error) {
+func Get(priority string) (int, int, error) {
 	hDC := win.GetDC(0)
 	defer win.ReleaseDC(0, hDC)
 	width := int(win.GetDeviceCaps(hDC, win.HORZRES))

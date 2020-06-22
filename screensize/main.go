@@ -39,7 +39,7 @@ func main() {}
 func GetMonitors() {
 	fmt.Println("GetMonitors")
 	mp := NewMonitor("primary")
-	mp.Width, mp.Height = Get("primary")
+	mp.Width, mp.Height, _ = Get("primary")
 	fmt.Println("monitors:", mp)
 	fmt.Println("monitor area:", mp.area())
 }
