@@ -9,6 +9,4 @@ var (
 	Githash string
 )
 
-func init() {}
-
 func main() {}

@@ -20,8 +20,19 @@ var (
 	err    error
 )
 
+//XrandrReader does...
+func XrandrReader() *bytes.Reader {
+	cmd := exec.Command("xrandr") // | grep ' connected' | cut -d' ' -f4 | grep -Po '[0-9]{4,5}.[0-9]{3}'")
+	cmd.Stderr = os.Stderr
+	output, err := cmd.Output()
+	if err != nil {
+		fmt.Println("error: ", err)
+	}
+	return bytes.NewReader(output)
+}
+
 //Get does
-func Get() (int, int, error) {
+func Get(priority string) (int, int) {
 
 	//
 	// xrandr | grep ' connected' | cut -d' ' -f4 | grep -Po '[0-9]{4,5}.[0-9]{3}'
@@ -29,13 +40,7 @@ func Get() (int, int, error) {
 	height = 800
 	err = nil
 
-	cmd := exec.Command("xrandr") // | grep ' connected' | cut -d' ' -f4 | grep -Po '[0-9]{4,5}.[0-9]{3}'")
-	cmd.Stderr = os.Stderr
-	output, err := cmd.Output()
-	if err != nil {
-		fmt.Println("error: ", err)
-	}
-	ls := bufio.NewScanner(bytes.NewReader(output))
+	ls := bufio.NewScanner(XrandrReader())
 	for ls.Scan() {
 		line := ls.Text()
 		if strings.Contains(line, " connected ") {
@@ -49,5 +54,5 @@ func Get() (int, int, error) {
 	}
 
 	//fmt.Println("screensize.get linux")
-	return width, height, nil
+	return width, height
 }
